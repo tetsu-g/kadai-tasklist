@@ -29,6 +29,7 @@ class TasksController extends Controller
                 'tasks' => $tasks,
             ];
             $data += $this->counts($user);
+            
             return view('tasks.index', $data);
         }else {
             return view('welcome');
@@ -37,12 +38,33 @@ class TasksController extends Controller
     
     public function show($id)
     {
+        $data = [];
         $task = Task::find($id);
+
+        if (\Auth::user()->id === $task->user_id) {
+            $user = \Auth::user();
+            
+            $data = [
+                'user' => $user,
+                'task' => $task,
+            ];
+
+            return view('tasks.show', $data);
+        }else {
+            return redirect('/');
+        }
+    }    
+    
+    
+    // public function show($id)
+    // {
+    //     $task = Task::find($id);
         
-        return view('tasks.show', [
-            'task' => $task,
-        ]);
-    }
+    //     return view('tasks.show', [
+    //         'task' => $task,
+    //     ]);
+    // }
+    
     
     public function create()
     {
@@ -70,27 +92,67 @@ class TasksController extends Controller
     
     public function edit($id)
     {
+        $data = [];
         $task = Task::find($id);
+
+        if (\Auth::user()->id === $task->user_id) {
+            $user = \Auth::user();
+            
+            $data = [
+                'user' => $user,
+                'task' => $task,
+            ];
+
+            return view('tasks.edit', $data);
+        }else {
+            return redirect('/');
+        }
+    } 
+    
+    
+    // public function edit($id)
+    // {
+    //     $task = Task::find($id);
         
-        return view('tasks.edit', [
-            'task' => $task,
-        ]);
-    }
+    //     return view('tasks.edit', [
+    //         'task' => $task,
+    //     ]);
+    // }
     
     public function update(Request $request, $id)
     {
         $this->validate($request, [
             'status' => 'required|max:191',
             'content' => 'required|max:191',
-        ]);
+            ]);
         
         $task = Task::find($id);
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
-        
-        return redirect('/');
+
+        if (\Auth::user()->id === $task->user_id) {
+            $task->status = $request->status;
+            $task->content = $request->content;
+            $task->save();
+
+            return redirect('/');
+        }
     }
+    
+    
+    // public function update(Request $request, $id)
+    // {
+    //     $this->validate($request, [
+    //         'status' => 'required|max:191',
+    //         'content' => 'required|max:191',
+    //     ]);
+        
+    //     $task = Task::find($id);
+    //     $task->status = $request->status;
+    //     $task->content = $request->content;
+    //     $task->save();
+        
+    //     return redirect('/');
+    // }
+    
     
     public function destroy($id)
     {
